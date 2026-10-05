@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VLearn — Micro-prototypes A/B/C</title>
+    <style>
+      :root { --ink:#1e293b; --muted:#64748b; --line:#dbe4f0; --navy:#163b65; --blue:#2563eb; --pale:#eff6ff; --green:#167a59; --bg:#f8fafc; }
+      * { box-sizing:border-box; } body { margin:0; color:var(--ink); background:var(--bg); font:16px/1.55 Inter,ui-sans-serif,system-ui,sans-serif; } button,textarea { font:inherit; } button { cursor:pointer; }
+      .topbar { min-height:64px; display:flex; align-items:center; gap:22px; padding:0 7vw; background:#fff; border-bottom:1px solid var(--line); } .brand { color:var(--navy); font-size:20px; font-weight:800; text-decoration:none; } .course { color:var(--muted); } .topbar nav { margin-left:auto; display:flex; gap:18px; } .topbar nav a { color:var(--muted); text-decoration:none; font-size:14px; }
+      .shell { width:min(760px,calc(100% - 32px)); margin:46px auto 32px; } .screen { display:none; } .screen.active { display:block; animation:appear .18s ease; } @keyframes appear { from { opacity:.35; transform:translateY(6px); } to { opacity:1; transform:none; } }
+      .eyebrow { margin:0 0 8px; color:var(--blue); font-size:13px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; } .lede { color:var(--muted); font-size:17px; } .simulation-note { margin:12px 0; padding:10px 12px; border-left:3px solid #8ab7ed; background:#f1f7ff; color:#315375; font-size:14px; } h1 { margin:.1em 0 .35em; color:#102a43; font-size:clamp(26px,4vw,38px); line-height:1.22; }
+      .problem-card,.explain-card,.confidence-card,.signal-card { padding:24px; margin:28px 0 16px; border:1px solid var(--line); border-radius:14px; background:#fff; box-shadow:0 5px 18px rgba(15,23,42,.04); } .card-label { color:var(--muted); font-size:13px; font-weight:800; text-transform:uppercase; } .problem-card li { margin:8px 0; } .stuck-note { display:flex; gap:13px; padding:17px; border-radius:12px; background:#fff8e8; color:#674b12; } .stuck-note span { display:grid; place-items:center; flex:none; width:25px; height:25px; border-radius:50%; background:#eab64e; color:#fff; font-weight:800; }
+      .option-grid { display:grid; gap:13px; margin-top:28px; } .option-card { display:grid; grid-template-columns:38px 1fr; gap:2px 13px; align-items:center; padding:17px; border:1px solid var(--line); border-radius:13px; text-align:left; background:#fff; color:var(--ink); transition:.15s; } .option-card:hover { border-color:var(--blue); transform:translateY(-1px); box-shadow:0 5px 14px rgba(37,99,235,.1); } .option-card span:last-child { grid-column:2; color:var(--muted); font-size:14px; } .option-letter { display:grid; grid-row:span 2; place-items:center; width:34px; height:34px; border-radius:9px; background:var(--pale); color:var(--blue); font-weight:800; }
+      .back,.link-button { padding:0; border:0; background:none; color:var(--blue); } .knowledge-list { display:grid; gap:10px; margin:26px 0; } .knowledge-step { display:flex; align-items:center; gap:13px; padding:16px; border:1px solid var(--line); border-radius:12px; background:#fff; text-align:left; color:var(--ink); } .knowledge-step:hover { border-color:var(--blue); } .knowledge-step span { display:grid; place-items:center; width:27px; height:27px; border-radius:50%; background:var(--pale); color:var(--blue); font-size:13px; font-weight:800; } .primary,.secondary { min-height:44px; padding:10px 16px; border-radius:9px; font-weight:700; } .primary { border:1px solid var(--blue); background:var(--blue); color:#fff; } .secondary { border:1px solid #b8c6d6; background:#fff; color:#24425f; } .actions { display:flex; flex-wrap:wrap; gap:10px; margin:18px 0; } .link-button { margin-top:14px; }
+      .question-stack { display:grid; gap:16px; margin:25px 0; } .question-stack fieldset { display:grid; gap:8px; padding:17px; border:1px solid var(--line); border-radius:12px; background:#fff; } .question-stack legend { padding:0 4px; font-weight:700; } .question-stack label { color:#334155; } .form-error { margin:0; color:#b42318; } .confidence-card { border-left:4px solid #eab64e; background:#fffdf6; } .confidence-card p,.signal-card p { margin-bottom:0; } .signal-card { border-color:#b8d4f4; background:var(--pale); } .low-confidence { display:inline-block; margin-top:14px; padding:3px 8px; border-radius:20px; background:#fff; color:#8a5b00; font-size:13px; font-weight:800; } .coach-details { margin:16px 0; padding:15px; border:1px solid var(--line); border-radius:12px; background:#fff; } .coach-details summary { cursor:pointer; font-weight:700; }
+      .answer-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:13px; margin:28px 0 14px; } .answer { min-height:80px; border:1px solid var(--line); border-radius:12px; background:#fff; color:var(--ink); font-weight:800; } .answer:hover { border-color:var(--blue); } .answer-feedback { min-height:24px; color:var(--green); font-weight:600; } .textarea-label { display:block; margin:24px 0 8px; font-weight:700; } .textarea-label + textarea { width:100%; padding:14px; border:1px solid var(--line); border-radius:12px; resize:vertical; } .privacy-note { color:var(--muted); font-size:14px; } footer { display:flex; justify-content:center; padding:22px; } .reset { border:0; background:none; color:var(--muted); text-decoration:underline; font-size:14px; }
+      @media (max-width:560px) { .topbar { padding:0 16px; gap:10px; } .course { display:none; } .topbar nav { gap:12px; } .shell { margin-top:28px; } .answer-grid { grid-template-columns:1fr; } }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#context" data-nav="context">VLearn</a>
+      <span class="course">Machine Learning cơ bản</span>
+      <nav aria-label="Chọn prototype">
+        <a href="#context" data-nav="context">Bài học</a>
+        <a href="#options" data-nav="options">Thử A/B/C</a>
+      </nav>
+    </header>
+
+    <main class="shell">
+      <section id="context" class="screen active" aria-labelledby="context-title">
+        <p class="eyebrow">Bài 4 · Gradient Descent</p>
+        <h1 id="context-title">Vì sao cập nhật theo hướng ngược gradient lại giảm loss?</h1>
+        <p class="lede">Bạn đang làm bài tập. Hãy đọc tình huống, sau đó chọn một cách hỗ trợ để tiếp tục.</p>
+
+        <article class="problem-card">
+          <div class="card-label">Bài tập đang làm</div>
+          <p>Cho <strong>f(w) = (w − 3)²</strong>, <strong>w₀ = 0</strong>, learning rate <strong>0.1</strong>.</p>
+          <ol>
+            <li>Tính w₁ theo công thức <strong>w = w − lr · f'(w)</strong>.</li>
+            <li>Giải thích: tại sao công thức này lại giúp giảm loss?</li>
+          </ol>
+        </article>
+
+        <aside class="stuck-note">
+          <span aria-hidden="true">?</span>
+          <div><strong>Điểm bạn đang kẹt</strong><br />“Mình thay được vào công thức, nhưng chưa hiểu vì sao lại đi theo hướng ngược gradient.”</div>
+        </aside>
+
+        <div class="option-grid" id="options">
+          <button class="option-card" data-open="a">
+            <span class="option-letter">A</span>
+            <strong>Tự tìm chỗ cần ôn</strong>
+            <span>Tự đi qua chuỗi kiến thức nền, rồi chọn bước bạn muốn xem lại.</span>
+          </button>
+          <button class="option-card" data-open="b">
+            <span class="option-letter">B</span>
+            <strong>Nhờ AI cùng chẩn đoán</strong>
+            <span>Trả lời vài câu ngắn trước khi AI gợi ý một hướng hỗ trợ.</span>
+          </button>
+          <button class="option-card" data-open="c">
+            <span class="option-letter">C</span>
+            <strong>Nhận gợi ý khi AI thấy bạn đang kẹt</strong>
+            <span>Xem và quyết định có nhận hỗ trợ dựa trên tín hiệu của phiên làm bài.</span>
+          </button>
+        </div>
+      </section>
+
+      <section id="a-flow" class="screen" aria-labelledby="a-title">
+        <button class="back" data-nav="context">← Quay về bài tập</button>
+        <p class="eyebrow">Option A · Bạn tự chẩn đoán</p>
+        <h1 id="a-title">Bạn muốn xem lại bước nào?</h1>
+        <p class="lede">Chuỗi này giúp bạn tự chọn phần cần xem lại. Hệ thống không đoán bạn đang thiếu kiến thức nào.</p>
+        <div class="knowledge-list" role="list">
+          <button class="knowledge-step" data-step="slope"><span>1</span> Đạo hàm cho biết độ dốc tại một điểm</button>
+          <button class="knowledge-step" data-step="sign"><span>2</span> Dấu đạo hàm cho biết hàm đang tăng hay giảm</button>
+          <button class="knowledge-step" data-step="opposite"><span>3</span> Đi ngược gradient để giảm loss</button>
+          <button class="knowledge-step" data-step="rate"><span>4</span> Learning rate điều chỉnh độ dài bước</button>
+        </div>
+        <button class="secondary" data-nav="context">Bỏ qua và quay lại bài</button>
+      </section>
+
+      <section id="a-explain" class="screen" aria-labelledby="a-explain-title">
+        <button class="back" data-open="a">← Đổi bước cần xem lại</button>
+        <p class="eyebrow">Option A · Bước bạn đã chọn</p>
+        <h1 id="a-explain-title">Đi ngược gradient để giảm loss</h1>
+        <article class="explain-card">
+          <p id="a-explain-body">Nếu <strong>f'(w) &gt; 0</strong>, khi w tăng thì f(w) tăng. Muốn f(w) giảm, ta giảm w: <strong>w − lr · f'(w)</strong>.</p>
+        </article>
+        <button class="primary" data-transfer="a">Thử một câu kiểm tra ngắn</button>
+        <button class="secondary" data-nav="context">Quay lại bài tập</button>
+      </section>
+
+      <section id="b-flow" class="screen" aria-labelledby="b-title">
+        <button class="back" data-nav="context">← Quay về bài tập</button>
+        <p class="eyebrow">Option B · Chẩn đoán cùng AI</p>
+        <h1 id="b-title">Trước khi gợi ý, tôi cần hiểu bạn đang kẹt ở đâu</h1>
+        <p class="lede">AI sẽ hỏi 3 câu về đoạn này để gợi ý một khả năng. Kết quả không khẳng định chắc chắn nguyên nhân.</p>
+        <form id="diagnostic-form" class="question-stack">
+          <fieldset>
+            <legend>1. Với w₀ = 0, bạn có tính được f'(w₀) không?</legend>
+            <label><input type="radio" name="q1" value="yes" /> Có</label>
+            <label><input type="radio" name="q1" value="no" /> Chưa chắc</label>
+          </fieldset>
+          <fieldset>
+            <legend>2. Bạn có biết f'(w) dương nói gì về f(w) khi w tăng không?</legend>
+            <label><input type="radio" name="q2" value="yes" /> Có</label>
+            <label><input type="radio" name="q2" value="no" /> Chưa chắc</label>
+          </fieldset>
+          <fieldset>
+            <legend>3. Bạn cần nhất lúc này?</legend>
+            <label><input type="radio" name="q3" value="example" /> Một ví dụ trực quan</label>
+            <label><input type="radio" name="q3" value="foundation" /> Ôn lại kiến thức nền</label>
+          </fieldset>
+          <p id="form-error" class="form-error" hidden>Hãy chọn một câu trả lời cho mỗi câu hỏi, hoặc quay lại bài tập.</p>
+          <button class="primary" type="submit">Xem gợi ý của AI</button>
+        </form>
+        <button class="secondary" data-nav="context">Bỏ qua và quay lại bài</button>
+      </section>
+
+      <section id="b-result" class="screen" aria-labelledby="b-result-title">
+        <button class="back" data-open="b">← Sửa câu trả lời</button>
+        <p class="eyebrow">Option B · Gợi ý của AI</p>
+        <h1 id="b-result-title">Có thể bạn đang cần nối dấu đạo hàm với hướng giảm loss</h1>
+        <article class="confidence-card">
+          <strong>Độ chắc chắn: thấp</strong>
+          <p id="b-evidence">Dựa trên câu trả lời của bạn về dấu đạo hàm và nhu cầu xem ví dụ. Đây là một gợi ý, không phải kết luận về năng lực của bạn.</p>
+        </article>
+        <article class="explain-card">
+          <p id="b-explain">Hãy thử nhìn ở w = 0: f'(w) = 2(w − 3) = −6. Đạo hàm âm nghĩa là khi tăng w một chút, f(w) giảm. Công thức trừ một số âm nên w tăng: 0 − 0.1 × (−6) = 0.6.</p>
+        </article>
+        <div class="actions">
+          <button class="secondary" data-open="b">Không đúng, đổi hướng</button>
+          <button class="primary" data-transfer="b">Thử một câu kiểm tra ngắn</button>
+        </div>
+        <button class="link-button" data-nav="context">Bỏ qua và quay lại bài</button>
+      </section>
+
+      <section id="c-flow" class="screen" aria-labelledby="c-title">
+        <button class="back" data-nav="context">← Quay về bài tập</button>
+        <p class="eyebrow">Option C · AI chủ động hỏi</p>
+        <h1 id="c-title">Bạn có muốn nhận hỗ trợ cho đoạn này không?</h1>
+        <p class="simulation-note">Trạng thái mô phỏng: prompt này xuất hiện sau khi bạn dừng 4 phút và sửa đáp án 2 lần trong chính bài tập này.</p>
+        <article class="signal-card">
+          <p><strong>AI nhận thấy:</strong> bạn đã dừng ở câu này 4 phút và sửa đáp án 2 lần.</p>
+          <p>Đây chỉ là tín hiệu của phiên làm bài hiện tại, không có nghĩa bạn chưa hiểu. AI không đọc bài khác và không tự gửi thông tin cho trợ giảng.</p>
+          <span class="low-confidence">Độ chắc chắn: thấp</span>
+        </article>
+        <div class="actions">
+          <button class="primary" data-open="c-help">Xem một hướng hỗ trợ</button>
+          <button class="secondary" data-nav="context">Để sau</button>
+        </div>
+        <button class="link-button" data-c-dismiss="true">Đừng nhắc trong bài này</button>
+      </section>
+
+      <section id="c-help" class="screen" aria-labelledby="c-help-title">
+        <button class="back" data-open="c">← Quay lại gợi ý</button>
+        <p class="eyebrow">Option C · Hướng hỗ trợ</p>
+        <h1 id="c-help-title">Thử kiểm tra dấu đạo hàm trước</h1>
+        <article class="explain-card">
+          <p>Ở w = 0, f'(w) = −6. Khi đạo hàm âm, tăng w sẽ làm f(w) giảm. Vì vậy công thức cập nhật đưa w từ 0 lên 0.6.</p>
+        </article>
+        <details class="coach-details">
+          <summary>Cần hỏi trợ giảng?</summary>
+          <p>Bản nháp gửi đi: “Mình hiểu cách thay số vào Gradient Descent nhưng chưa nối được dấu đạo hàm với hướng cập nhật w. Bạn có thể giải thích bằng một ví dụ đơn giản không?”</p>
+          <button class="secondary" data-coach="preview">Xem/chỉnh trước khi gửi</button>
+        </details>
+        <div class="actions">
+          <button class="primary" data-transfer="c">Thử một câu kiểm tra ngắn</button>
+          <button class="secondary" data-nav="context">Quay lại bài tập</button>
+        </div>
+      </section>
+
+      <section id="transfer" class="screen" aria-labelledby="transfer-title">
+        <button class="back" data-last-flow="true">← Quay lại hỗ trợ</button>
+        <p class="eyebrow">Tự kiểm tra · Không tính điểm</p>
+        <h1 id="transfer-title">Nếu f(w) = (w + 2)² và w₀ = 0, w sẽ tăng hay giảm sau một bước?</h1>
+        <p class="lede">Chọn một đáp án rồi xem lý do. Đây là cách tự kiểm tra, không quyết định bạn có được quay lại bài hay không.</p>
+        <div class="answer-grid">
+          <button class="answer" data-answer="increase">w tăng</button>
+          <button class="answer" data-answer="decrease">w giảm</button>
+        </div>
+        <p id="answer-feedback" class="answer-feedback" aria-live="polite"></p>
+        <button id="return-to-problem" class="primary" hidden data-nav="context">Quay lại bài tập</button>
+      </section>
+
+      <section id="coach-preview" class="screen" aria-labelledby="coach-title">
+        <button class="back" data-open="c-help">← Quay lại hỗ trợ</button>
+        <p class="eyebrow">Option C · Preview trước khi gửi</p>
+        <h1 id="coach-title">Bạn muốn gửi câu hỏi này cho trợ giảng?</h1>
+        <label class="textarea-label" for="coach-message">Nội dung gửi đi</label>
+        <textarea id="coach-message" rows="6">Mình hiểu cách thay số vào Gradient Descent nhưng chưa nối được dấu đạo hàm với hướng cập nhật w. Bạn có thể giải thích bằng một ví dụ đơn giản không?</textarea>
+        <p class="privacy-note">Chỉ nội dung bạn xác nhận ở đây mới được gửi. Bạn có thể hủy và quay lại bài tập.</p>
+        <div class="actions">
+          <button class="primary" data-coach="send">Gửi cho trợ giảng</button>
+          <button class="secondary" data-open="c-help">Hủy</button>
+        </div>
+      </section>
+
+      <section id="coach-sent" class="screen" aria-labelledby="sent-title">
+        <p class="eyebrow">Option C · Đã gửi</p>
+        <h1 id="sent-title">Câu hỏi của bạn đã sẵn sàng để trợ giảng xem</h1>
+        <p class="lede">Trong lúc chờ, bạn vẫn có thể quay lại bài hoặc tự kiểm tra bằng ví dụ khác.</p>
+        <div class="actions">
+          <button class="primary" data-transfer="c">Thử câu kiểm tra ngắn</button>
+          <button class="secondary" data-nav="context">Quay lại bài tập</button>
+        </div>
+      </section>
+    </main>
+    <footer><button class="reset" data-nav="context">↺ Reset về bài tập chung</button></footer>
+    <script>
+      const screens = document.querySelectorAll('.screen');
+      let lastFlow = 'a-explain';
+      function show(id) { if (id === 'context') resetSession(); screens.forEach((screen) => screen.classList.toggle('active', screen.id === id)); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      function resetTransfer() { document.getElementById('answer-feedback').textContent = ''; document.getElementById('return-to-problem').hidden = true; }
+      function resetSession() { document.getElementById('diagnostic-form').reset(); document.getElementById('form-error').hidden = true; resetTransfer(); document.getElementById('coach-message').value = 'Mình hiểu cách thay số vào Gradient Descent nhưng chưa nối được dấu đạo hàm với hướng cập nhật w. Bạn có thể giải thích bằng một ví dụ đơn giản không?'; const dismiss = document.querySelector('[data-c-dismiss]'); dismiss.textContent = 'Đừng nhắc trong bài này'; dismiss.disabled = false; }
+      const stepContent = {
+        slope: { title: 'Đạo hàm cho biết độ dốc tại một điểm', body: 'Với f(w) = (w − 3)², đạo hàm là <strong>f’(w) = 2(w − 3)</strong>. Ở mỗi giá trị w, đạo hàm cho biết f(w) đang thay đổi theo hướng nào và nhanh đến đâu.' },
+        sign: { title: 'Dấu đạo hàm cho biết hàm đang tăng hay giảm', body: 'Nếu <strong>f’(w) &gt; 0</strong>, khi w tăng thì f(w) tăng. Nếu <strong>f’(w) &lt; 0</strong>, khi w tăng thì f(w) giảm. Dấu của đạo hàm giúp ta chọn hướng di chuyển.' },
+        opposite: { title: 'Đi ngược gradient để giảm loss', body: 'Nếu <strong>f’(w) &gt; 0</strong>, khi w tăng thì f(w) tăng; muốn f(w) giảm thì ta giảm w. Nếu <strong>f’(w) &lt; 0</strong>, trừ một số âm làm w tăng. Cả hai trường hợp đều đi về phía làm loss giảm.' },
+        rate: { title: 'Learning rate điều chỉnh độ dài bước', body: '<strong>Learning rate</strong> quyết định mỗi lần cập nhật đi bao xa. Giá trị quá lớn có thể vượt qua điểm thấp; quá nhỏ thì học chậm. Nó không thay đổi hướng do dấu đạo hàm quyết định.' }
+      };
+      function renderDiagnosis(form) {
+        const answers = new FormData(form); const q1 = answers.get('q1'); const q2 = answers.get('q2'); const q3 = answers.get('q3'); let result;
+        if (q1 === 'no') result = { title: 'Có thể bạn cần ôn lại cách tính đạo hàm trước', evidence: 'Dựa trên việc bạn nói chưa chắc về cách tính f’(w). Đây là một gợi ý, không phải kết luận về năng lực của bạn.', explain: 'Với f(w) = (w − 3)², dùng quy tắc đạo hàm ta có f’(w) = 2(w − 3). Khi tính được độ dốc tại w hiện tại, ta mới dùng dấu của nó để chọn hướng cập nhật.' };
+        else if (q2 === 'no') result = { title: 'Có thể bạn đang cần nối dấu đạo hàm với hướng giảm loss', evidence: 'Dựa trên việc bạn nói chưa chắc ý nghĩa của dấu đạo hàm. Đây là một gợi ý, không phải kết luận về năng lực của bạn.', explain: 'Ở w = 0: f’(w) = 2(w − 3) = −6. Đạo hàm âm nghĩa là khi tăng w một chút, f(w) giảm. Công thức trừ một số âm nên w tăng: 0 − 0.1 × (−6) = 0.6.' };
+        else if (q3 === 'example') result = { title: 'Có thể một ví dụ trực quan sẽ giúp bạn nối công thức với hướng cập nhật', evidence: 'Bạn nói tính được đạo hàm nhưng muốn một ví dụ trực quan. Đây là một gợi ý, không phải kết luận về năng lực của bạn.', explain: 'Hãy hình dung f(w) là độ cao trên một ngọn đồi. Khi f’(w) dương, phía w tăng đang đi lên nên ta bước theo hướng giảm w. Khi f’(w) âm, phía w tăng đang đi xuống nên ta tăng w.' };
+        else result = { title: 'Có thể bạn muốn ôn lại nền tảng về độ dốc trước', evidence: 'Bạn nói tính được đạo hàm và hiểu dấu, nhưng chọn ôn nền tảng. Đây là một gợi ý, không phải kết luận về năng lực của bạn.', explain: 'Đạo hàm là độ dốc cục bộ. Gradient Descent dùng dấu của độ dốc để chọn hướng đi xuống và learning rate để chọn độ dài bước vừa đủ.' };
+        document.getElementById('b-result-title').textContent = result.title; document.getElementById('b-evidence').textContent = result.evidence; document.getElementById('b-explain').textContent = result.explain;
+      }
+      document.addEventListener('click', (event) => {
+        const nav = event.target.closest('[data-nav]'); if (nav) { event.preventDefault(); show(nav.dataset.nav); return; }
+        const open = event.target.closest('[data-open]'); if (open) { const map = { a:'a-flow', b:'b-flow', c:'c-flow', 'c-help':'c-help' }; show(map[open.dataset.open]); return; }
+        const step = event.target.closest('[data-step]'); if (step) { const selected = stepContent[step.dataset.step]; document.getElementById('a-explain-title').textContent = selected.title; document.getElementById('a-explain-body').innerHTML = selected.body; show('a-explain'); return; }
+        const transfer = event.target.closest('[data-transfer]'); if (transfer) { lastFlow = transfer.dataset.transfer === 'a' ? 'a-explain' : transfer.dataset.transfer === 'b' ? 'b-result' : 'c-help'; resetTransfer(); show('transfer'); return; }
+        if (event.target.closest('[data-last-flow]')) { show(lastFlow); return; }
+        const answer = event.target.closest('[data-answer]'); if (answer) { const feedback = document.getElementById('answer-feedback'); feedback.textContent = answer.dataset.answer === 'decrease' ? 'Đúng. Ở w = 0, f’(w) = 4 (> 0), nên giảm w sẽ làm f(w) giảm.' : 'Hãy xem lại dấu đạo hàm: f’(0) = 4 (> 0), nên tăng w sẽ làm loss tăng. Bạn vẫn có thể quay lại bài hoặc xem lại hỗ trợ.'; document.getElementById('return-to-problem').hidden = false; return; }
+        if (event.target.closest('[data-c-dismiss]')) { event.target.textContent = 'Đã tắt gợi ý chủ động cho bài này'; event.target.disabled = true; return; }
+        const coach = event.target.closest('[data-coach]'); if (coach) show(coach.dataset.coach === 'preview' ? 'coach-preview' : 'coach-sent');
+      });
+      document.getElementById('diagnostic-form').addEventListener('submit', (event) => { event.preventDefault(); const form = new FormData(event.currentTarget); const complete = ['q1','q2','q3'].every((name) => form.get(name)); document.getElementById('form-error').hidden = complete; if (complete) { renderDiagnosis(event.currentTarget); show('b-result'); } });
+    </script>
+  </body>
+</html>
